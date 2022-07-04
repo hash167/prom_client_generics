@@ -22,7 +22,6 @@ class _MetricsBase(Generic[_MetricsTypeT]):
 class Counter(_MetricsBase[_PromCounter]):
     def __init__(self, name, documentation, labelnames=()):
         super().__init__(label_names=labelnames)
-        print(self.all_label_names)
         self._parent_metric = _PromCounter(
             name=name, documentation=documentation,
             labelnames=self.all_label_names)

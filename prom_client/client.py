@@ -2,8 +2,10 @@ from prometheus_client import Counter as _PromCounter
 from typing import Generic, TypeVar, Iterable, Dict, cast, Optional
 from prom_client.default_labels import get_default_labels
 
+# Defining a new Type
 _MetricsTypeT = TypeVar('_MetricsTypeT', bound=[_PromCounter])
 
+# Defining the generic of type _MetricsTypeT
 class _MetricsBase(Generic[_MetricsTypeT]):
     def __init__(self, label_names: Iterable[str]):
         self.default_labels: Dict[str] = get_default_labels()
@@ -19,10 +21,10 @@ class _MetricsBase(Generic[_MetricsTypeT]):
         return cast(_MetricsTypeT, self._parent_metric.labels(**labelkwargs))
 
 
+# Inheriting class calling base class with type
 class Counter(_MetricsBase[_PromCounter]):
     def __init__(self, name, documentation, labelnames=()):
         super().__init__(label_names=labelnames)
-        print(self.all_label_names)
         self._parent_metric = _PromCounter(
             name=name, documentation=documentation,
             labelnames=self.all_label_names)

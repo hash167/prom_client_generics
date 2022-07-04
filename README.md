@@ -38,3 +38,37 @@ Flask applications can be instrumented with default requests counts, latencies a
 - `docker run -dp 8080:8080 flask_app`
 - Don't forget to kill the app from docker desktop or the docker cli tool
 
+
+## Generics
+
+First time use of generics in a project
+
+```
+# Defining a new Type
+_MetricsTypeT = TypeVar('_MetricsTypeT', bound=[_PromCounter])
+
+# Defining the generic of type _MetricsTypeT
+class _MetricsBase(Generic[_MetricsTypeT]):
+    def __init__(self, label_names: Iterable[str]):
+        self.default_labels: Dict[str] = get_default_labels()
+        self.all_label_names: list = list(label_names) + list(self.default_labels.keys())
+        self._parent_metric: _MetricsTypeT = None
+
+    # Provides the label functionality
+    def labels(self, *labelargs, **labelkwargs) -> _MetricsTypeT:            
+        if labelargs:
+            labelargs += tuple(self.default_labels.values())
+            return cast(_MetricsTypeT, self._parent_metric.labels(*labelargs))
+        labelkwargs.update(self.default_labels)
+        return cast(_MetricsTypeT, self._parent_metric.labels(**labelkwargs))
+
+
+# Inheriting class calling base class with type
+class Counter(_MetricsBase[_PromCounter]):
+    def __init__(self, name, documentation, labelnames=()):
+        super().__init__(label_names=labelnames)
+        self._parent_metric = _PromCounter(
+            name=name, documentation=documentation,
+            labelnames=self.all_label_names)
+
+```
